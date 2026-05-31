@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="card p-4 mb-4 bg-white">
+    <h3 class="fw-bold mb-3">Додати декана</h3>
+    <form method="POST" class="row g-3">
+        <div class="col-md-3"><input name="order_number" class="form-control" placeholder="Номер наказу" required></div>
+        <div class="col-md-5"><select name="passport_id" class="form-select" required>{% for p in persons %}<option value="{{ p.passportid }}">{{ p.fullname }} ({{ p.passportid }})</option>{% endfor %}</select></div>
+        <div class="col-md-3"><select name="faculty_name" class="form-select" required>{% for f in faculties %}<option value="{{ f.name }}">{{ f.name }}</option>{% endfor %}</select></div>
+        <div class="col-md-1"><button class="btn btn-success w-100">OK</button></div>
+    </form>
+</div>
+<div class="card p-4 bg-white">
+    <h3 class="fw-bold mb-3">Dean</h3>
+    <div class="table-responsive"><table class="table table-hover align-middle">
+        <thead><tr><th>Наказ</th><th>Декан</th><th>Факультет</th><th colspan="2">Дії</th></tr></thead>
+        <tbody>{% for d in deans %}<tr>
+            <form method="POST" action="{{ url_for('update_dean') }}">
+                <input type="hidden" name="old_order_number" value="{{ d.ordernumber }}">
+                <td><input name="order_number" class="form-control" value="{{ d.ordernumber }}" required></td>
+                <td><select name="passport_id" class="form-select" required>{% for p in persons %}<option value="{{ p.passportid }}" {% if p.passportid == d.passportid %}selected{% endif %}>{{ p.fullname }}</option>{% endfor %}</select></td>
+                <td><select name="faculty_name" class="form-select" required>{% for f in faculties %}<option value="{{ f.name }}" {% if f.name == d.facultyname %}selected{% endif %}>{{ f.name }}</option>{% endfor %}</select></td>
+                <td><button class="btn btn-primary btn-sm">Редагувати</button></td>
+            </form>
+            <td><form method="POST" action="{{ url_for('delete_dean') }}" onsubmit="return confirm('Видалити запис?')"><input type="hidden" name="order_number" value="{{ d.ordernumber }}"><button class="btn btn-danger btn-sm">Видалити</button></form></td>
+        </tr>{% endfor %}</tbody>
+    </table></div>
+</div>
+{% endblock %}

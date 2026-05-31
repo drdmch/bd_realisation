@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="card p-4 mb-4 bg-white">
+    <h3 class="fw-bold mb-3">Додати кафедру</h3>
+    <form method="POST" class="row g-3">
+        <div class="col-md-3"><input name="name" class="form-control" placeholder="Назва кафедри" required></div>
+        <div class="col-md-3"><input name="head_name" class="form-control" placeholder="Завідувач"></div>
+        <div class="col-md-2"><input name="office" class="form-control" placeholder="Кабінет"></div>
+        <div class="col-md-2"><input name="email" type="email" class="form-control" placeholder="Email"></div>
+        <div class="col-md-2"><select name="faculty_name" class="form-select" required>{% for f in faculties %}<option value="{{ f.name }}">{{ f.name }}</option>{% endfor %}</select></div>
+        <div class="col-12 text-end"><button class="btn btn-success">Зберегти</button></div>
+    </form>
+</div>
+<div class="card p-4 bg-white">
+    <h3 class="fw-bold mb-3">Department</h3>
+    <div class="table-responsive"><table class="table table-hover align-middle">
+        <thead><tr><th>Кафедра</th><th>Завідувач</th><th>Кабінет</th><th>Email</th><th>Факультет</th><th colspan="2">Дії</th></tr></thead>
+        <tbody>{% for d in departments %}<tr>
+            <form method="POST" action="{{ url_for('update_department') }}">
+                <input type="hidden" name="old_name" value="{{ d.name }}">
+                <td><input name="name" class="form-control" value="{{ d.name }}" required></td>
+                <td><input name="head_name" class="form-control" value="{{ d.headname or '' }}"></td>
+                <td><input name="office" class="form-control" value="{{ d.office or '' }}"></td>
+                <td><input name="email" type="email" class="form-control" value="{{ d.email or '' }}"></td>
+                <td><select name="faculty_name" class="form-select" required>{% for f in faculties %}<option value="{{ f.name }}" {% if f.name == d.facultyname %}selected{% endif %}>{{ f.name }}</option>{% endfor %}</select></td>
+                <td><button class="btn btn-primary btn-sm">Редагувати</button></td>
+            </form>
+            <td><form method="POST" action="{{ url_for('delete_department') }}" onsubmit="return confirm('Видалити запис?')"><input type="hidden" name="name" value="{{ d.name }}"><button class="btn btn-danger btn-sm">Видалити</button></form></td>
+        </tr>{% endfor %}</tbody>
+    </table></div>
+</div>
+{% endblock %}

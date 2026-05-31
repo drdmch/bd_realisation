@@ -1,8 +1,19 @@
+DROP TABLE IF EXISTS Teacher_Discipline_Group CASCADE;
+DROP TABLE IF EXISTS Dean CASCADE;
+DROP TABLE IF EXISTS Teacher CASCADE;
+DROP TABLE IF EXISTS Student CASCADE;
+DROP TABLE IF EXISTS StudentGroup CASCADE;
+DROP TABLE IF EXISTS Person CASCADE;
+DROP TABLE IF EXISTS Discipline CASCADE;
+DROP TABLE IF EXISTS Department CASCADE;
+DROP TABLE IF EXISTS Faculty CASCADE;
+DROP TABLE IF EXISTS University CASCADE;
+
 CREATE TABLE University (
     Name VARCHAR(100) PRIMARY KEY
 );
 
-INSERT INTO University VALUES ('Київський національний універсиет');
+INSERT INTO University VALUES ('Київський національний університет');
 
 CREATE TABLE Faculty (
     Name VARCHAR(100) PRIMARY KEY,
@@ -14,7 +25,7 @@ CREATE TABLE Faculty (
     FOREIGN KEY (UniName) REFERENCES University(Name) ON DELETE CASCADE
 );
 
-INSERT INTO Faculty VALUES ('ФКНК', 'пр. Академіка Глушкова, 4д', '044-204-91-13', 'csc@knu.ua', '1969-09-01', 'Київський національний універсиет');
+INSERT INTO Faculty VALUES ('ФКНК', 'пр. Академіка Глушкова, 4д', '044-204-91-13', 'csc@knu.ua', '1969-09-01', 'Київський національний університет');
 
 CREATE TABLE Department (
     Name VARCHAR(100) PRIMARY KEY,
@@ -50,7 +61,8 @@ CREATE TABLE Person (
 
 INSERT INTO Person VALUES 
 ('ID001', 'Іваненко Іван Іванович', '2005-05-15', 'ivan@mail.com', '0931112233'),
-('ID002', 'Петренко Петро Петрович', '1975-10-20', 'petrenko@kpi.ua', '0504445566');
+('ID002', 'Петренко Петро Петрович', '1975-10-20', 'petrenko@kpi.ua', '0504445566'),
+('ID004', 'Мельник Олексій Степанович', '1970-01-01', 'melnyk@knu.ua', '0671112233');
 
 CREATE TABLE StudentGroup (
     Name VARCHAR(20) PRIMARY KEY,
@@ -83,20 +95,9 @@ CREATE TABLE Teacher (
     FOREIGN KEY (DeptName) REFERENCES Department(Name)
 );
 
-INSERT INTO Teacher VALUES ('ID002', 'Доцент', 'Кандидат техн. наук', 'ТК');
-
-CREATE TABLE Student_Discipline (
-    StudentPassport VARCHAR(20),
-    DeptName VARCHAR(100),
-    DiscName VARCHAR(100),
-    PRIMARY KEY (StudentPassport, DeptName, DiscName),
-    FOREIGN KEY (StudentPassport) REFERENCES Student(PassportID),
-    FOREIGN KEY (DeptName, DiscName) REFERENCES Discipline(DeptName, Name)
-);
-
-INSERT INTO Student_Discipline VALUES 
-('ID001', 'ТК', 'Бази даних'),
-('ID001', 'ТК', 'Python');
+INSERT INTO Teacher VALUES 
+('ID002', 'Доцент', 'Кандидат техн. наук', 'ТК'),
+('ID004', 'Завідувач кафедри', 'Доктор техн. наук', 'ТК');
 
 CREATE TABLE Dean (
     OrderNumber VARCHAR(50) PRIMARY KEY,
@@ -106,4 +107,32 @@ CREATE TABLE Dean (
     FOREIGN KEY (FacultyName) REFERENCES Faculty(Name)
 );
 
-INSERT INTO Dean VALUES ('45/2023', 'ID002', 'ФКНК');
+INSERT INTO Dean VALUES ('45/2023', 'ID002', 'ФКНК'); 
+
+ALTER TABLE Teacher 
+ADD COLUMN SupervisorID VARCHAR(20),
+ADD CONSTRAINT fk_teacher_self 
+    FOREIGN KEY (SupervisorID) REFERENCES Teacher(PassportID);
+ 
+UPDATE Teacher 
+SET SupervisorID = 'ID004' WHERE PassportID = 'ID002';
+
+CREATE TABLE Teacher_Discipline_Group (
+    TeacherID VARCHAR(20),
+    DeptName VARCHAR(100),
+    DiscName VARCHAR(100),
+    GroupName VARCHAR(20),
+    PRIMARY KEY (TeacherID, DeptName, DiscName, GroupName),
+    FOREIGN KEY (TeacherID) REFERENCES Teacher(PassportID),
+    FOREIGN KEY (DeptName, DiscName) REFERENCES Discipline(DeptName, Name),
+    FOREIGN KEY (GroupName) REFERENCES StudentGroup(Name)
+);
+
+INSERT INTO Teacher_Discipline_Group VALUES ('ID002', 'ТК', 'Бази даних', 'ТК-31'); 
+
+ 
+
+
+ 
+
+ 

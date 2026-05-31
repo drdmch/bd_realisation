@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="card p-4 mb-4 bg-white">
+    <h3 class="fw-bold mb-3">Додати особу</h3>
+    <form method="POST" class="row g-3">
+        <div class="col-md-2"><input name="passport_id" class="form-control" placeholder="Паспорт" required></div>
+        <div class="col-md-3"><input name="full_name" class="form-control" placeholder="ПІБ" required></div>
+        <div class="col-md-2"><input name="birth_date" type="date" class="form-control"></div>
+        <div class="col-md-3"><input name="email" type="email" class="form-control" placeholder="Email"></div>
+        <div class="col-md-2"><input name="phone" class="form-control" placeholder="Телефон"></div>
+        <div class="col-12 text-end"><button class="btn btn-success">Зберегти</button></div>
+    </form>
+</div>
+<div class="card p-4 bg-white">
+    <h3 class="fw-bold mb-3">Person</h3>
+    <div class="table-responsive"><table class="table table-hover align-middle">
+        <thead><tr><th>Паспорт</th><th>ПІБ</th><th>Дата народження</th><th>Email</th><th>Телефон</th><th colspan="2">Дії</th></tr></thead>
+        <tbody>{% for p in persons %}<tr>
+            <form method="POST" action="{{ url_for('update_person') }}">
+                <input type="hidden" name="old_passport_id" value="{{ p.passportid }}">
+                <td><input name="passport_id" class="form-control" value="{{ p.passportid }}" required></td>
+                <td><input name="full_name" class="form-control" value="{{ p.fullname }}" required></td>
+                <td><input name="birth_date" type="date" class="form-control" value="{{ p.birthdate or '' }}"></td>
+                <td><input name="email" type="email" class="form-control" value="{{ p.email or '' }}"></td>
+                <td><input name="phone" class="form-control" value="{{ p.phone or '' }}"></td>
+                <td><button class="btn btn-primary btn-sm">Редагувати</button></td>
+            </form>
+            <td><form method="POST" action="{{ url_for('delete_person') }}" onsubmit="return confirm('Видалити запис?')"><input type="hidden" name="passport_id" value="{{ p.passportid }}"><button class="btn btn-danger btn-sm">Видалити</button></form></td>
+        </tr>{% endfor %}</tbody>
+    </table></div>
+</div>
+{% endblock %}

@@ -3,62 +3,29 @@
 <div class="card p-4 mb-4 bg-white">
     <h3 class="fw-bold mb-3 text-dark">Додати нову дисципліну</h3>
     <form method="POST" class="row g-3">
-        <div class="col-md-3">
-            <label class="form-label small fw-semibold text-muted">Кафедра (Частина PK / FK)</label>
-            <select name="dept_name" class="form-select" required>
-                {% for d in departments %}
-                <option value="{{ d.name }}">{{ d.name }}</option>
-                {% endfor %}
-            </select>
-        </div>
-        <div class="col-md-5">
-            <label class="form-label small fw-semibold text-muted">Назва дисципліни</label>
-            <input type="text" name="name" class="form-control" placeholder="напр. Бази даних" required>
-        </div>
-        <div class="col-md-2">
-            <label class="form-label small fw-semibold text-muted">Кредити ECTS</label>
-            <input type="number" name="credits" class="form-control" min="1" max="15" value="5" required>
-        </div>
-        <div class="col-md-2">
-            <label class="form-label small fw-semibold text-muted">Форма контролю</label>
-            <select name="has_exam" class="form-select">
-                <option value="TRUE">Екзамен</option>
-                <option value="FALSE">Залік</option>
-            </select>
-        </div>
-        <div class="col-12 text-end mt-4">
-            <button type="submit" class="btn btn-success btn-custom px-4 shadow-sm">Зберегти дисципліну</button>
-        </div>
+        <div class="col-md-3"><label class="form-label small fw-semibold text-muted">Кафедра</label><select name="dept_name" class="form-select" required>{% for d in departments %}<option value="{{ d.name }}">{{ d.name }}</option>{% endfor %}</select></div>
+        <div class="col-md-5"><label class="form-label small fw-semibold text-muted">Назва дисципліни</label><input type="text" name="name" class="form-control" required></div>
+        <div class="col-md-2"><label class="form-label small fw-semibold text-muted">Кредити ECTS</label><input type="number" name="credits" class="form-control" min="1" max="15" value="5" required></div>
+        <div class="col-md-2"><label class="form-label small fw-semibold text-muted">Форма контролю</label><select name="has_exam" class="form-select"><option value="TRUE">Екзамен</option><option value="FALSE">Залік</option></select></div>
+        <div class="col-12 text-end mt-4"><button type="submit" class="btn btn-success btn-custom px-4 shadow-sm">Зберегти</button></div>
     </form>
 </div>
-
 <div class="card p-4 bg-white">
-    <h3 class="fw-bold mb-3 text-dark">Записи у таблиці Discipline</h3>
-    <div class="table-responsive">
-        <table class="table table-hover align-middle mt-2">
-            <thead class="table-light">
-                <tr>
-                    <th>Кафедра</th>
-                    <th>Назва дисципліни</th>
-                    <th>Кредити</th>
-                    <th>Іспит / Залік</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for d in disciplines %}
-                <tr>
-                    <td class="fw-semibold">{{ d.deptname }}</td>
-                    <td>{{ d.name }}</td>
-                    <td><span class="badge bg-light text-dark border px-2 py-1">{{ d.credits }}</span></td>
-                    <td>
-                        <span class="badge bg-opacity-10 {% if d.hasexam %}bg-danger text-danger{% else %}bg-info text-info{% endif %} px-2 py-1">
-                            {% if d.hasexam %}Екзамен{% else %}Залік{% endif %}
-                        </span>
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
+    <h3 class="fw-bold mb-3 text-dark">Discipline</h3>
+    <div class="table-responsive"><table class="table table-hover align-middle mt-2">
+        <thead class="table-light"><tr><th>Кафедра</th><th>Назва дисципліни</th><th>Кредити</th><th>Форма контролю</th><th colspan="2">Дії</th></tr></thead>
+        <tbody>{% for d in disciplines %}<tr>
+            <form method="POST" action="{{ url_for('update_discipline') }}">
+                <input type="hidden" name="old_dept_name" value="{{ d.deptname }}">
+                <input type="hidden" name="old_name" value="{{ d.name }}">
+                <td><select name="dept_name" class="form-select" required>{% for dep in departments %}<option value="{{ dep.name }}" {% if dep.name == d.deptname %}selected{% endif %}>{{ dep.name }}</option>{% endfor %}</select></td>
+                <td><input name="name" class="form-control" value="{{ d.name }}" required></td>
+                <td><input name="credits" type="number" class="form-control" min="1" max="15" value="{{ d.credits }}" required></td>
+                <td><select name="has_exam" class="form-select"><option value="TRUE" {% if d.hasexam %}selected{% endif %}>Екзамен</option><option value="FALSE" {% if not d.hasexam %}selected{% endif %}>Залік</option></select></td>
+                <td><button class="btn btn-primary btn-sm">Редагувати</button></td>
+            </form>
+            <td><form method="POST" action="{{ url_for('delete_discipline') }}" onsubmit="return confirm('Видалити запис?')"><input type="hidden" name="dept_name" value="{{ d.deptname }}"><input type="hidden" name="name" value="{{ d.name }}"><button class="btn btn-danger btn-sm">Видалити</button></form></td>
+        </tr>{% endfor %}</tbody>
+    </table></div>
 </div>
 {% endblock %}

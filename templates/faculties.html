@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="card p-4 mb-4 bg-white">
+    <h3 class="fw-bold mb-3">Додати факультет</h3>
+    <form method="POST" class="row g-3">
+        <div class="col-md-4"><input name="name" class="form-control" placeholder="Назва" required></div>
+        <div class="col-md-4"><input name="address" class="form-control" placeholder="Адреса"></div>
+        <div class="col-md-2"><input name="phone" class="form-control" placeholder="Телефон"></div>
+        <div class="col-md-2"><input name="email" type="email" class="form-control" placeholder="Email"></div>
+        <div class="col-md-3"><input name="foundation_date" type="date" class="form-control" required></div>
+        <div class="col-md-7"><select name="uni_name" class="form-select" required>{% for u in universities %}<option value="{{ u.name }}">{{ u.name }}</option>{% endfor %}</select></div>
+        <div class="col-md-2"><button class="btn btn-success w-100">Зберегти</button></div>
+    </form>
+</div>
+<div class="card p-4 bg-white">
+    <h3 class="fw-bold mb-3">Faculty</h3>
+    <div class="table-responsive">
+        <table class="table table-hover align-middle">
+            <thead><tr><th>Назва</th><th>Адреса</th><th>Телефон</th><th>Email</th><th>Дата</th><th>Університет</th><th colspan="2">Дії</th></tr></thead>
+            <tbody>{% for f in faculties %}<tr>
+                <form method="POST" action="{{ url_for('update_faculty') }}">
+                    <input type="hidden" name="old_name" value="{{ f.name }}">
+                    <td><input name="name" class="form-control" value="{{ f.name }}" required></td>
+                    <td><input name="address" class="form-control" value="{{ f.address or '' }}"></td>
+                    <td><input name="phone" class="form-control" value="{{ f.phone or '' }}"></td>
+                    <td><input name="email" type="email" class="form-control" value="{{ f.email or '' }}"></td>
+                    <td><input name="foundation_date" type="date" class="form-control" value="{{ f.foundationdate }}" required></td>
+                    <td><select name="uni_name" class="form-select" required>{% for u in universities %}<option value="{{ u.name }}" {% if u.name == f.uniname %}selected{% endif %}>{{ u.name }}</option>{% endfor %}</select></td>
+                    <td><button class="btn btn-primary btn-sm">Редагувати</button></td>
+                </form>
+                <td><form method="POST" action="{{ url_for('delete_faculty') }}" onsubmit="return confirm('Видалити запис?')"><input type="hidden" name="name" value="{{ f.name }}"><button class="btn btn-danger btn-sm">Видалити</button></form></td>
+            </tr>{% endfor %}</tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

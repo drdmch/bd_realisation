@@ -3,72 +3,30 @@
 <div class="card p-4 mb-4 bg-white">
     <h3 class="fw-bold mb-3 text-dark">Реєстрація нового викладача</h3>
     <form method="POST" class="row g-3">
-        <div class="col-md-3">
-            <label class="form-label small fw-semibold text-muted">Обрати особу (FK)</label>
-            <select name="passport_id" class="form-select" required>
-                {% for p in persons %}
-                <option value="{{ p.passportid }}">{{ p.fullname }}</option>
-                {% endfor %}
-            </select>
-        </div>
-        <div class="col-md-3">
-            <label class="form-label small fw-semibold text-muted">Посада</label>
-            <input type="text" name="position" class="form-control" placeholder="напр. Доцент" required>
-        </div>
-        <div class="col-md-3">
-            <label class="form-label small fw-semibold text-muted">Вчений ступінь</label>
-            <input type="text" name="degree" class="form-control" placeholder="Кандидат наук" required>
-        </div>
-        <div class="col-md-2">
-            <label class="form-label small fw-semibold text-muted">Кафедра (FK)</label>
-            <select name="dept_name" class="form-select" required>
-                {% for d in departments %}
-                <option value="{{ d.name }}">{{ d.name }}</option>
-                {% endfor %}
-            </select>
-        </div>
-        <div class="col-md-3 mt-3">
-            <label class="form-label small fw-semibold text-muted">Науковий керівник (Рекурсивний FK)</label>
-            <select name="supervisor_id" class="form-select">
-                <option value="None">Немає керівника</option>
-                {% for s in supervisors %}
-                <option value="{{ s.passportid }}">{{ s.fullname }}</option>
-                {% endfor %}
-            </select>
-        </div>
-        <div class="col-12 text-end mt-4">
-            <button type="submit" class="btn btn-success btn-custom px-4 shadow-sm">Додати в штат</button>
-        </div>
+        <div class="col-md-3"><label class="form-label small fw-semibold text-muted">Обрати особу</label><select name="passport_id" class="form-select" required>{% for p in persons %}<option value="{{ p.passportid }}">{{ p.fullname }}</option>{% endfor %}</select></div>
+        <div class="col-md-3"><label class="form-label small fw-semibold text-muted">Посада</label><input type="text" name="position" class="form-control" required></div>
+        <div class="col-md-3"><label class="form-label small fw-semibold text-muted">Вчений ступінь</label><input type="text" name="degree" class="form-control" required></div>
+        <div class="col-md-3"><label class="form-label small fw-semibold text-muted">Кафедра</label><select name="dept_name" class="form-select" required>{% for d in departments %}<option value="{{ d.name }}">{{ d.name }}</option>{% endfor %}</select></div>
+        <div class="col-md-4"><label class="form-label small fw-semibold text-muted">Науковий керівник</label><select name="supervisor_id" class="form-select"><option value="">Немає керівника</option>{% for s in supervisors %}<option value="{{ s.passportid }}">{{ s.fullname }}</option>{% endfor %}</select></div>
+        <div class="col-12 text-end mt-4"><button type="submit" class="btn btn-success btn-custom px-4 shadow-sm">Додати</button></div>
     </form>
 </div>
-
 <div class="card p-4 bg-white">
-    <h3 class="fw-bold mb-3 text-dark">Професорсько-викладацький склад</h3>
-    <div class="table-responsive">
-        <table class="table table-hover align-middle mt-2">
-            <thead class="table-light">
-                <tr>
-                    <th>Паспорт</th>
-                    <th>ПІБ Викладача</th>
-                    <th>Посада</th>
-                    <th>Ступінь</th>
-                    <th>Кафедра</th>
-                    <th>Керівник</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for t in teachers %}
-                <tr>
-                    <td class="small text-secondary font-monospace">{{ t.passportid }}</td>
-                    <td class="fw-semibold">{{ t.fullname }}</td>
-                    <td>{{ t.position }}</td>
-                    <td>{{ t.academicdegree }}</td>
-                    <td><span class="badge bg-secondary px-2 py-1">{{ t.deptname }}</span></td>
-                    <td><em class="text-muted">{% if t.super_name %}{{ t.super_name }}{% else %}-{% endif %}</em></td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
+    <h3 class="fw-bold mb-3 text-dark">Teacher</h3>
+    <div class="table-responsive"><table class="table table-hover align-middle mt-2">
+        <thead class="table-light"><tr><th>Особа</th><th>Посада</th><th>Ступінь</th><th>Кафедра</th><th>Керівник</th><th colspan="2">Дії</th></tr></thead>
+        <tbody>{% for t in teachers %}<tr>
+            <form method="POST" action="{{ url_for('update_teacher') }}">
+                <input type="hidden" name="old_passport_id" value="{{ t.passportid }}">
+                <td><select name="passport_id" class="form-select" required>{% for p in persons %}<option value="{{ p.passportid }}" {% if p.passportid == t.passportid %}selected{% endif %}>{{ p.fullname }}</option>{% endfor %}</select></td>
+                <td><input name="position" class="form-control" value="{{ t.position }}" required></td>
+                <td><input name="degree" class="form-control" value="{{ t.academicdegree }}" required></td>
+                <td><select name="dept_name" class="form-select" required>{% for d in departments %}<option value="{{ d.name }}" {% if d.name == t.deptname %}selected{% endif %}>{{ d.name }}</option>{% endfor %}</select></td>
+                <td><select name="supervisor_id" class="form-select"><option value="">Немає керівника</option>{% for s in supervisors %}<option value="{{ s.passportid }}" {% if s.passportid == t.supervisorid %}selected{% endif %}>{{ s.fullname }}</option>{% endfor %}</select></td>
+                <td><button class="btn btn-primary btn-sm">Редагувати</button></td>
+            </form>
+            <td><form method="POST" action="{{ url_for('delete_teacher') }}" onsubmit="return confirm('Видалити запис?')"><input type="hidden" name="passport_id" value="{{ t.passportid }}"><button class="btn btn-danger btn-sm">Видалити</button></form></td>
+        </tr>{% endfor %}</tbody>
+    </table></div>
 </div>
 {% endblock %}
