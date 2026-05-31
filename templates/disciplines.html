@@ -1,0 +1,64 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="card p-4 mb-4 bg-white">
+    <h3 class="fw-bold mb-3 text-dark">Додати нову дисципліну</h3>
+    <form method="POST" class="row g-3">
+        <div class="col-md-3">
+            <label class="form-label small fw-semibold text-muted">Кафедра (Частина PK / FK)</label>
+            <select name="dept_name" class="form-select" required>
+                {% for d in departments %}
+                <option value="{{ d.name }}">{{ d.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-md-5">
+            <label class="form-label small fw-semibold text-muted">Назва дисципліни</label>
+            <input type="text" name="name" class="form-control" placeholder="напр. Бази даних" required>
+        </div>
+        <div class="col-md-2">
+            <label class="form-label small fw-semibold text-muted">Кредити ECTS</label>
+            <input type="number" name="credits" class="form-control" min="1" max="15" value="5" required>
+        </div>
+        <div class="col-md-2">
+            <label class="form-label small fw-semibold text-muted">Форма контролю</label>
+            <select name="has_exam" class="form-select">
+                <option value="TRUE">Екзамен</option>
+                <option value="FALSE">Залік</option>
+            </select>
+        </div>
+        <div class="col-12 text-end mt-4">
+            <button type="submit" class="btn btn-success btn-custom px-4 shadow-sm">Зберегти дисципліну</button>
+        </div>
+    </form>
+</div>
+
+<div class="card p-4 bg-white">
+    <h3 class="fw-bold mb-3 text-dark">Записи у таблиці Discipline</h3>
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mt-2">
+            <thead class="table-light">
+                <tr>
+                    <th>Кафедра</th>
+                    <th>Назва дисципліни</th>
+                    <th>Кредити</th>
+                    <th>Іспит / Залік</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for d in disciplines %}
+                <tr>
+                    <td class="fw-semibold">{{ d.deptname }}</td>
+                    <td>{{ d.name }}</td>
+                    <td><span class="badge bg-light text-dark border px-2 py-1">{{ d.credits }}</span></td>
+                    <td>
+                        <span class="badge bg-opacity-10 {% if d.hasexam %}bg-danger text-danger{% else %}bg-info text-info{% endif %} px-2 py-1">
+                            {% if d.hasexam %}Екзамен{% else %}Залік{% endif %}
+                        </span>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

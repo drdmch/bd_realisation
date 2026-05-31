@@ -1,0 +1,151 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="row g-4">
+    <div class="col-lg-4">
+        <div class="card p-4 h-100 bg-white">
+            <h4 class="fw-bold mb-3 text-dark border-bottom pb-2">Введення даних</h4>
+            <p class="text-muted small">Управління записами за допомогою користувацьких форм.</p>
+            <div class="d-grid gap-2 mt-3">
+                <a href="/students" class="btn btn-primary btn-custom py-2 text-start shadow-sm">👤 Форма: Студенти</a>
+                <a href="/teachers" class="btn btn-primary btn-custom py-2 text-start shadow-sm">💼 Форма: Викладачі</a>
+                <a href="/disciplines" class="btn btn-primary btn-custom py-2 text-start shadow-sm">📚 Форма: Дисципліни</a>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-8">
+        <div class="card p-4 bg-white shadow-sm">
+            <h4 class="fw-bold mb-3 text-dark border-bottom pb-2">Параметризовані запити</h4>
+            
+            <div class="mb-3 p-3 bg-light rounded-3">
+                <label class="form-label fw-semibold text-secondary small text-uppercase">Запит 1: Студенти за формою навчання та назвою кафедри</label>
+                <form action="/query1" method="POST" class="row g-2">
+                    <div class="col-md-5">
+                        <select name="study_form" class="form-select" required>
+                            <option value="" disabled selected>Оберіть форму навчання...</option>
+                            {% for form in study_forms %}
+                            <option value="{{ form }}">{{ form }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-5">
+                        <select name="dept_name" class="form-select" required>
+                            <option value="" disabled selected>Оберіть кафедру...</option>
+                            {% for dept in departments %}
+                            <option value="{{ dept }}">{{ dept }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-2"><button type="submit" class="btn btn-dark btn-custom w-100">Запуск</button></div>
+                </form>
+            </div>
+
+            <div class="mb-3 p-3 bg-light rounded-3">
+                <label class="form-label fw-semibold text-secondary small text-uppercase">Запит 2: Дисципліни кафедри, кредити яких вищі за вказані</label>
+                <form action="/query2" method="POST" class="row g-2">
+                    <div class="col-md-5">
+                        <select name="min_credits" class="form-select" required>
+                            <option value="" disabled selected>Мінімум кредитів...</option>
+                            <option value="2">Більше 2 кредитів</option>
+                            <option value="4">Більше 4 кредитів</option>
+                            <option value="5">Більше 5 кредитів</option>
+                        </select>
+                    </div>
+                    <div class="col-md-5">
+                        <select name="dept_name" class="form-select" required>
+                            <option value="" disabled selected>Оберіть кафедру...</option>
+                            {% for dept in departments %}
+                            <option value="{{ dept }}">{{ dept }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-2"><button type="submit" class="btn btn-dark btn-custom w-100">Запуск</button></div>
+                </form>
+            </div>
+
+            <div class="mb-3 p-3 bg-light rounded-3">
+                <label class="form-label fw-semibold text-secondary small text-uppercase">Запит 3: Викладачі певного факультету із вказаним вченим званням</label>
+                <form action="/query3" method="POST" class="row g-2">
+                    <div class="col-md-5">
+                        <select name="faculty_name" class="form-select" required>
+                            <option value="" disabled selected>Оберіть факультет...</option>
+                            {% for fac in faculties %}
+                            <option value="{{ fac }}">{{ fac }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-5">
+                        <select name="degree" class="form-select" required>
+                            <option value="" disabled selected>Оберіть вчене звання...</option>
+                            {% for deg in degrees %}
+                            <option value="{{ deg }}">{{ deg }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-2"><button type="submit" class="btn btn-dark btn-custom w-100">Запуск</button></div>
+                </form>
+            </div>
+
+            <div class="mb-3 p-3 bg-light rounded-3">
+                <label class="form-label fw-semibold text-secondary small text-uppercase">Запит 4: Студенти, які записані на вказану дисципліну</label>
+                <form action="/query4" method="POST" class="row g-2">
+                    <div class="col-md-10">
+                        <select name="disc_name" class="form-select" required>
+                            <option value="" disabled selected>Оберіть дисципліну...</option>
+                            {% for disc in disciplines %}
+                            <option value="{{ disc }}">{{ disc }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-2"><button type="submit" class="btn btn-dark btn-custom w-100">Запуск</button></div>
+                </form>
+            </div>
+
+            <div class="mb-3 p-3 bg-light rounded-3">
+                <label class="form-label fw-semibold text-secondary small text-uppercase">Запит 5: Кафедри факультетів, заснованих після вказаного року</label>
+                <form action="/query5" method="POST" class="row g-2">
+                    <div class="col-md-10">
+                        <select name="year" class="form-select" required>
+                            <option value="" disabled selected>Оберіть рік заснування факультету...</option>
+                            <option value="1960">Після 1960 року</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2"><button type="submit" class="btn btn-dark btn-custom w-100">Запуск</button></div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4 mt-1">
+    <div class="col-md-6">
+        <div class="card p-4 bg-white h-100">
+            <h5 class="fw-bold text-dark mb-3">Множинні порівняння</h5>
+            <div class="d-grid gap-3">
+                <form action="/query6" method="POST">
+                    <button type="submit" class="btn btn-outline-dark btn-custom w-100 text-start p-3">
+                        🔎 <strong>Запит 6:</strong> Пари груп, які слухають однакову множину предметів
+                    </button>
+                </form>
+                <form action="/query7" method="POST">
+                    <button type="submit" class="btn btn-outline-dark btn-custom w-100 text-start p-3">
+                        🧮 <strong>Запит 7:</strong> Викладачі, які викладають абсолютно у всіх групах своєї кафедри
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="card p-4 bg-white h-100">
+            <h5 class="fw-bold text-success mb-3">Аналітичні звіти (Арифметика)</h5>
+            <div class="row g-2">
+                <div class="col-6"><a href="/report1" class="btn btn-light btn-custom w-100 py-3 text-center border">📊 Звіт 1: % Студентів</a></div>
+                <div class="col-6"><a href="/report2" class="btn btn-light btn-custom w-100 py-3 text-center border">📈 Звіт 2: Кадри</a></div>
+                <div class="col-6"><a href="/report3" class="btn btn-light btn-custom w-100 py-3 text-center border">🕒 Звіт 3: Години</a></div>
+                <div class="col-6"><a href="/report4" class="btn btn-light btn-custom w-100 py-3 text-center border">📉 Звіт 4: Аудит БД</a></div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

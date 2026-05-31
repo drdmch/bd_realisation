@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="card p-4 bg-white">
+    <span class="badge bg-primary align-self-start mb-2 px-3 py-2 text-uppercase font-monospace fs-7">{{ title }}</span>
+    <h2 class="fw-bold text-dark">{{ desc }}</h2>
+    
+    <div class="table-responsive mt-4">
+        {% if results %}
+        <table class="table table-bordered table-striped align-middle">
+            <thead class="table-dark">
+                <tr>
+                    {% for col in columns %}
+                    <th class="py-3">{{ col }}</th>
+                    {% endfor %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in results %}
+                <tr>
+                    {% for col in columns %}
+                    <td class="py-3">{{ row[loop.index0] }}</td>
+                    {% endfor %}
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <div class="alert alert-info border-0 p-4 rounded-3">
+            <h5 class="fw-bold">Дані відсутні</h5>
+            За вказаними параметрами у базі даних не знайдено жодного збігу.
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

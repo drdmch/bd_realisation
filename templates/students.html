@@ -1,0 +1,70 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="card p-4 mb-4 bg-white">
+    <h3 class="fw-bold mb-3 text-dark">Додати нового студента</h3>
+    <form method="POST" class="row g-3">
+        <div class="col-md-4">
+            <label class="form-label small fw-semibold text-muted">Обрати людину (FK з Person)</label>
+            <select name="passport_id" class="form-select" required>
+                {% for p in persons %}
+                <option value="{{ p.passportid }}">{{ p.fullname }} ({{ p.passportid }})</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-md-2">
+            <label class="form-label small fw-semibold text-muted">№ Заліковки</label>
+            <input type="text" name="record_book" class="form-control" placeholder="КВ-XXXXXX" required>
+        </div>
+        <div class="col-md-2">
+            <label class="form-label small fw-semibold text-muted">Рік вступу</label>
+            <input type="number" name="year" class="form-control" value="2024" required>
+        </div>
+        <div class="col-md-2">
+            <label class="form-label small fw-semibold text-muted">Форма навчання</label>
+            <select name="study_form" class="form-select">
+                <option value="Денна">Денна</option>
+                <option value="Заочна">Заочна</option>
+            </select>
+        </div>
+        <div class="col-md-2">
+            <label class="form-label small fw-semibold text-muted">Група (FK)</label>
+            <select name="group_name" class="form-select" required>
+                {% for g in groups %}
+                <option value="{{ g.name }}">{{ g.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-12 text-end mt-4">
+            <button type="submit" class="btn btn-success btn-custom px-4 shadow-sm">Зберегти в базу</button>
+        </div>
+    </form>
+</div>
+
+<div class="card p-4 bg-white">
+    <h3 class="fw-bold mb-3 text-dark">Записи у таблиці Student</h3>
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mt-2">
+            <thead class="table-light">
+                <tr>
+                    <th>ID Паспорта</th>
+                    <th>Повне ім'я</th>
+                    <th>Заліковка</th>
+                    <th>Форма навчання</th>
+                    <th>Група</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for s in students %}
+                <tr>
+                    <td class="fw-mono small text-secondary">{{ s.passportid }}</td>
+                    <td class="fw-semibold">{{ s.fullname }}</td>
+                    <td>{{ s.recordbookid }}</td>
+                    <td><span class="badge bg-opacity-10 {% if s.studyform == 'Денна' %}bg-success text-success{% else %}bg-warning text-warning{% endif %} px-2 py-1">{{ s.studyform }}</span></td>
+                    <td><span class="badge bg-secondary px-2 py-1">{{ s.groupname }}</span></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,42 @@
+# services:
+#   db:
+#     image: postgres:12
+#     ports:
+#       - "5434:5432"
+#     expose:
+#       - 5434
+#     env_file:
+#       - .env
+#     networks:
+#       - pwp-network
+#     volumes:
+#       - postgres_data:/var/lib/postgresql/data
+
+# volumes:
+#   postgres_data:
+
+# networks:
+#   pwp-network:
+
+# version: '3.8'
+
+version: '3.8'
+
+services:
+  db:
+    image: postgres:12
+    container_name: projectmb
+    ports:
+      - "5434:5432"  
+    env_file:
+      - .env
+    networks:
+      - pwp-network
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:
+
+networks:
+  pwp-network:
