@@ -1,4 +1,3 @@
-# На початку файлу додано імпорт об'єкта "g"
 from flask import Flask, render_template, request, redirect, url_for, flash, g
 import psycopg2
 from psycopg2.extras import DictCursor
@@ -20,7 +19,7 @@ def get_db_connection():
 
 
 def fetch_all(query, params=None):
-    g.last_query = query  # Зберігаємо запит у глобальний контекст поточного сеансу сторінки
+    g.last_query = query 
     conn = get_db_connection()
     cur = conn.cursor()
     cur.execute(query, params or ())
@@ -31,7 +30,7 @@ def fetch_all(query, params=None):
 
 
 def execute_commit(query, params=None, success_message='Операцію виконано'):
-    g.last_query = query  # Зберігаємо зміну даних у глобальний контекст
+    g.last_query = query 
     conn = get_db_connection()
     cur = conn.cursor()
     try:
@@ -298,7 +297,7 @@ def query1():
 def query2():
     min_credits = request.form['min_credits']
     dept_name = request.form['dept_name']
-    rows = fetch_all("SELECT d.name, d.credits, CASE WHEN d.hasexam THEN 'Екзамен' ELSE 'Залік' END, dep.headname FROM discipline d JOIN department dep ON d.deptname = dep.name WHERE d.credits > %s AND dep.name = %s ORDER BY d.credits DESC, d.name", (min_credits, dept_name))
+    rows = fetch_all('SELECT d.name, d.credits, d.hasexam, dep.headname FROM discipline d JOIN department dep ON d.deptname = dep.name WHERE d.credits > %s AND dep.name = %s ORDER BY d.name', (min_credits, dept_name))
     return render_template('query_results.html', title='Запит 2', desc=f'Дисципліни з кредитами > {min_credits} на кафедрі {dept_name}', results=rows, columns=['Назва дисципліни', 'Кредити', 'Форма контролю', 'Завідувач кафедри'])
 
 
@@ -323,42 +322,39 @@ def query5():
     rows = fetch_all('SELECT d.name, d.headname, f.name, f.foundationdate FROM department d JOIN faculty f ON d.facultyname = f.name WHERE EXTRACT(YEAR FROM f.foundationdate) > %s ORDER BY f.foundationdate', (year,))
     return render_template('query_results.html', title='Запит 5', desc=f'Кафедри факультетів, заснованих після {year} року', results=rows, columns=['Кафедра', 'Завідувач', 'Факультет', 'Засновано'])
 
-
 @app.route('/query6', methods=['POST'])
 def query6():
-    rows = fetch_all('SELECT g1.name, g2.name FROM studentgroup g1 JOIN studentgroup g2 ON g1.name < g2.name WHERE NOT EXISTS (SELECT tdg1.discname FROM teacher_discipline_group tdg1 WHERE tdg1.groupname = g1.name EXCEPT SELECT tdg2.discname FROM teacher_discipline_group tdg2 WHERE tdg2.groupname = g2.name) AND NOT EXISTS (SELECT tdg2.discname FROM teacher_discipline_group tdg2 WHERE tdg2.groupname = g2.name EXCEPT SELECT tdg1.discname FROM teacher_discipline_group tdg1 WHERE tdg1.groupname = g1.name)')
+    rows = fetch_all('SELECT g1.name, g2.name FROM studentgroup g1 JOIN studentgroup g2 ON g1.name < g2.name WHERE NOT EXISTS (SELECT discname FROM teacher_discipline_group WHERE groupname = g1.name EXCEPT SELECT discname FROM teacher_discipline_group WHERE groupname = g2.name) AND NOT EXISTS (SELECT discname FROM teacher_discipline_group WHERE groupname = g2.name EXCEPT SELECT discname FROM teacher_discipline_group WHERE groupname = g1.name)')
     return render_template('query_results.html', title='Запит 6 (множинне порівняння)', desc='Пари студентських груп, що вивчають однакову множину дисциплін', results=rows, columns=['Група А', 'Група Б'])
 
 
 @app.route('/query7', methods=['POST'])
 def query7():
-    rows = fetch_all('SELECT p.fullname, t.deptname, t.position FROM teacher t JOIN person p ON t.passportid = p.passportid WHERE NOT EXISTS (SELECT sg.name FROM studentgroup sg WHERE sg.deptname = t.deptname EXCEPT SELECT tdg.groupname FROM teacher_discipline_group tdg WHERE tdg.teacherid = t.passportid) ORDER BY p.fullname')
+    rows = fetch_all('SELECT p.fullname, t.deptname, t.position FROM teacher t JOIN person p ON t.passportid = p.passportid WHERE NOT EXISTS (SELECT name FROM studentgroup WHERE deptname = t.deptname EXCEPT SELECT groupname FROM teacher_discipline_group WHERE teacherid = t.passportid) ORDER BY p.fullname')
     return render_template('query_results.html', title='Запит 7 (множинне порівняння)', desc='Викладачі, які викладають у всіх групах своєї кафедри', results=rows, columns=['ПІБ викладача', 'Кафедра', 'Посада'])
-
 
 @app.route('/report1')
 def report1():
-    rows = fetch_all('SELECT d.name, f.name AS faculty_name, COUNT(s.passportid) AS student_count, ROUND(COUNT(s.passportid) * 100.0 / NULLIF((SELECT COUNT(*) FROM student), 0), 2) AS percent_of_total FROM department d JOIN faculty f ON d.facultyname = f.name LEFT JOIN studentgroup sg ON sg.deptname = d.name LEFT JOIN student s ON s.groupname = sg.name GROUP BY d.name, f.name ORDER BY d.name')
-    return render_template('query_results.html', title='Звіт 1', desc='Процентний розподіл студентів за кафедрами', results=rows, columns=['Кафедра', 'Факультет', 'Кількість студентів', '% від загальної кількості'])
+    rows = fetch_all('SELECT d.name, f.name AS faculty_name, COUNT(s.passportid) AS student_count FROM department d JOIN faculty f ON d.facultyname = f.name LEFT JOIN studentgroup sg ON sg.deptname = d.name LEFT JOIN student s ON s.groupname = sg.name GROUP BY d.name, f.name ORDER BY d.name')
+    return render_template('query_results.html', title='Звіт 1', desc='Кількість студентів за кафедрами', results=rows, columns=['Кафедра', 'Факультет', 'Кількість студентів'])
 
 
 @app.route('/report2')
 def report2():
-    rows = fetch_all('SELECT d.name, f.name AS faculty_name, COUNT(DISTINCT tdg.teacherid) AS teachers_count, COUNT(DISTINCT tdg.discname) AS disciplines_count, ROUND(COUNT(DISTINCT tdg.discname)::NUMERIC / NULLIF(COUNT(DISTINCT tdg.teacherid), 0), 2) AS avg_disciplines_per_teacher FROM department d JOIN faculty f ON d.facultyname = f.name LEFT JOIN teacher_discipline_group tdg ON tdg.deptname = d.name GROUP BY d.name, f.name ORDER BY d.name')
-    return render_template('query_results.html', title='Звіт 2', desc='Середнє навчальне навантаження викладачів за кафедрами', results=rows, columns=['Кафедра', 'Факультет', 'Активних викладачів', 'Дисциплін', 'Дисциплін на викладача'])
+    rows = fetch_all('SELECT d.name, f.name AS faculty_name, COUNT(tdg.teacherid) AS teaching_records, COUNT(tdg.discname) AS disciplines_count FROM department d JOIN faculty f ON d.facultyname = f.name LEFT JOIN teacher_discipline_group tdg ON tdg.deptname = d.name GROUP BY d.name, f.name ORDER BY d.name')
+    return render_template('query_results.html', title='Звіт 2', desc='Навчальне навантаження кафедр', results=rows, columns=['Кафедра', 'Факультет', 'Записів викладання', 'Дисциплін'])
 
 
 @app.route('/report3')
 def report3():
-    rows = fetch_all('SELECT dep.name, fac.name AS faculty_name, COUNT(d.name) AS disciplines_count, COALESCE(SUM(d.credits), 0) AS total_credits, COALESCE(SUM(d.credits), 0) * 30 AS academic_hours FROM department dep JOIN faculty fac ON dep.facultyname = fac.name LEFT JOIN discipline d ON d.deptname = dep.name GROUP BY dep.name, fac.name ORDER BY dep.name')
-    return render_template('query_results.html', title='Звіт 3', desc='Сумарний облік навчальних годин за кафедрами', results=rows, columns=['Кафедра', 'Факультет', 'Дисциплін', 'Всього кредитів', 'Академічні години'])
+    rows = fetch_all('SELECT dep.name, fac.name AS faculty_name, COUNT(d.name) AS disciplines_count, SUM(d.credits) AS total_credits, SUM(d.credits) * 30 AS academic_hours FROM department dep JOIN faculty fac ON dep.facultyname = fac.name LEFT JOIN discipline d ON d.deptname = dep.name GROUP BY dep.name, fac.name ORDER BY dep.name')
+    return render_template('query_results.html', title='Звіт 3', desc='Навчальні години за кафедрами', results=rows, columns=['Кафедра', 'Факультет', 'Дисциплін', 'Всього кредитів', 'Академічні години'])
 
 
 @app.route('/report4')
 def report4():
-    rows = fetch_all('SELECT dep.name, COUNT(DISTINCT s.passportid) AS students_count, COUNT(DISTINCT t.passportid) AS teachers_count, ROUND(COUNT(DISTINCT s.passportid)::NUMERIC / NULLIF(COUNT(DISTINCT t.passportid), 0), 2) AS students_per_teacher FROM department dep LEFT JOIN studentgroup sg ON sg.deptname = dep.name LEFT JOIN student s ON s.groupname = sg.name LEFT JOIN teacher t ON t.deptname = dep.name GROUP BY dep.name ORDER BY dep.name')
-    return render_template('query_results.html', title='Звіт 4', desc='Співвідношення кількості студентів і викладачів за кафедрами', results=rows, columns=['Кафедра', 'Студентів', 'Викладачів', 'Студентів на викладача'])
-
+    rows = fetch_all('SELECT dep.name, COUNT(s.passportid) AS students_count, COUNT(t.passportid) AS teachers_count FROM department dep LEFT JOIN studentgroup sg ON sg.deptname = dep.name LEFT JOIN student s ON s.groupname = sg.name LEFT JOIN teacher t ON t.deptname = dep.name GROUP BY dep.name ORDER BY dep.name')
+    return render_template('query_results.html', title='Звіт 4', desc='Кількість студентів і викладачів за кафедрами', results=rows, columns=['Кафедра', 'Студентів', 'Викладачів'])
 
 if __name__ == '__main__':
     app.run(debug=True)
